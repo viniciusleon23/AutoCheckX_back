@@ -3,6 +3,8 @@ from django.db import models
 # Declaración de la tabla clientes
 class Cliente(models.Model):
     nombre = models.CharField(max_length=20)
+    apellido_paterno = models.CharField(max_length=20,blank=True)
+    apellido_materno = models.CharField(max_length=20,blank=True)
     telefono = models.CharField(max_length=10)
     correo = models.EmailField(max_length=50)  
     
@@ -14,10 +16,11 @@ class Vehiculo(models.Model):
     vin = models.CharField(max_length=17)
     marca = models.CharField(max_length=20)
     modelo = models.CharField(max_length=20)
-    año = models.IntegerField()  # Sin max_length
+    año = models.IntegerField() 
     placa = models.CharField(max_length=7)
     servicio = models.CharField(max_length=200)
-    comentario = models.CharField(max_length=200)
+    comentario = models.CharField(max_length=200, blank=True)
+    fecha_registro = models.DateField(blank=True, null=True)
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     
@@ -27,14 +30,10 @@ class Vehiculo(models.Model):
     
     
 class Inspeccion(models.Model):
-    MARCAS_CHOICES = [
-        ('nissan', 'Nissan'),
-        ('hyundai', 'Hyundai'),
-        ('mazda', 'Mazda'),
-    ]
     
-    marca = models.CharField(max_length=20, choices=MARCAS_CHOICES)
-    fecha_servicio = models.DateField()
+    
+    marca = models.CharField(max_length=20)
+    fecha_servicio = models.DateField(blank=True,null=True)
     vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     
     # Campos comunes
@@ -47,6 +46,10 @@ class Inspeccion(models.Model):
     presion_llanta_dos = models.FloatField(blank=True, null=True)
     presion_llanta_tres = models.FloatField(blank=True, null=True)
     presion_llanta_cuatro = models.FloatField(blank=True, null=True)
+    
+    #estatus
+    estatus = models.CharField(max_length=12,blank=True,null=True)
+    
     
     def __str__(self):
         return f"Inspección {self.marca} - {self.vehiculo.placa}"
