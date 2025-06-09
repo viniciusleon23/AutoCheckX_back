@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import VehiculoSerializer,InspeccionSerializer,ClienteSerializer
+from .serializers import VehiculoSerializer, VehiculoConInspeccionSerializer, InspeccionSerializer, ClienteSerializer
 from .models import Vehiculo,Cliente,Inspeccion
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -20,7 +20,7 @@ class VehiculoView(viewsets.ModelViewSet):
             inspeccion__estatus='Pendiente'
         ).distinct()
         
-        serializer = self.get_serializer(vehiculos_pendientes, many=True)
+        serializer = VehiculoConInspeccionSerializer(vehiculos_pendientes, many=True)
         return Response({
             'count': vehiculos_pendientes.count(),
             'results': serializer.data
@@ -36,18 +36,12 @@ class VehiculoView(viewsets.ModelViewSet):
             inspeccion__estatus='Realizado'
         ).distinct()
         
-        serializer = self.get_serializer(vehiculos_realizados, many=True)
+        serializer = VehiculoConInspeccionSerializer(vehiculos_realizados, many=True)
         return Response({
             'count': vehiculos_realizados.count(),
             'results': serializer.data
         })
         
-        
-    
-    
-    
-    
-    
 class ClienteView(viewsets.ModelViewSet):
     serializer_class = ClienteSerializer
     queryset = Cliente.objects.all()

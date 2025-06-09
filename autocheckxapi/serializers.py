@@ -62,3 +62,27 @@ class VehiculoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"Error al crear el registro: {str(e)}"
             )
+            
+            
+class VehiculoConInspeccionSerializer(serializers.ModelSerializer):
+    cliente = ClienteSerializer()
+    inspeccion_id = serializers.SerializerMethodField()
+    inspeccion_estatus = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Vehiculo
+        fields = ['id', 'vin', 'marca', 'modelo', 'año', 'placa', 'servicio', 'comentario','fecha_registro', 'cliente', 'inspeccion_id', 'inspeccion_estatus']
+    
+    def get_inspeccion_id(self, obj):
+        try:
+            inspeccion = Inspeccion.objects.get(vehiculo=obj)
+            return inspeccion.id
+        except Inspeccion.DoesNotExist:
+            return None
+    
+    def get_inspeccion_estatus(self, obj):
+        try:
+            inspeccion = Inspeccion.objects.get(vehiculo=obj)
+            return inspeccion.estatus
+        except Inspeccion.DoesNotExist:
+            return None
