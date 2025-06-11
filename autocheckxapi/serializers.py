@@ -18,13 +18,30 @@ class InspeccionSerializer(serializers.ModelSerializer):
         fields = ["marca","fecha_servicio","vehiculo","luces_frontales","luces_posteriores","carga_bateria","presion_llanta_uno","presion_llanta_dos","presion_llanta_tres","presion_llanta_cuatro","estatus"]
 
 class VehiculoSerializer(serializers.ModelSerializer):
-    cliente = ClienteSerializer()  
+    cliente = ClienteSerializer() 
+    inspeccion_id = serializers.SerializerMethodField()
+    inspeccion_estatus = serializers.SerializerMethodField() 
     
     class Meta:
         model = Vehiculo
-        fields = ['id', 'vin', 'marca', 'modelo', 'año', 'placa', 'servicio', 'comentario','fecha_registro', 'cliente']
-        
+        fields = ['id', 'vin', 'marca', 'modelo', 'año', 'placa', 'servicio', 'comentario','fecha_registro', 'cliente','inspeccion_id', 'inspeccion_estatus']
     
+    # Método para obtener el ID de la inspección
+    def get_inspeccion_id(self, obj):
+        try:
+            inspeccion = Inspeccion.objects.get(vehiculo=obj)
+            return inspeccion.id
+        except Inspeccion.DoesNotExist:
+            return None
+    
+    # Método para obtener el estatus de la inspección
+    def get_inspeccion_estatus(self, obj):
+        try:
+            inspeccion = Inspeccion.objects.get(vehiculo=obj)
+            return inspeccion.estatus
+        except Inspeccion.DoesNotExist:
+            return None
+        
     @transaction.atomic
     def create(self, validated_data):
         try:
@@ -62,27 +79,3 @@ class VehiculoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"Error al crear el registro: {str(e)}"
             )
-            
-            
-class VehiculoConInspeccionSerializer(serializers.ModelSerializer):
-    cliente = ClienteSerializer()
-    inspeccion_id = serializers.SerializerMethodField()
-    inspeccion_estatus = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Vehiculo
-        fields = ['id', 'vin', 'marca', 'modelo', 'año', 'placa', 'servicio', 'comentario','fecha_registro', 'cliente', 'inspeccion_id', 'inspeccion_estatus']
-    
-    def get_inspeccion_id(self, obj):
-        try:
-            inspeccion = Inspeccion.objects.get(vehiculo=obj)
-            return inspeccion.id
-        except Inspeccion.DoesNotExist:
-            return None
-    
-    def get_inspeccion_estatus(self, obj):
-        try:
-            inspeccion = Inspeccion.objects.get(vehiculo=obj)
-            return inspeccion.estatus
-        except Inspeccion.DoesNotExist:
-            return None
